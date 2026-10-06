@@ -428,13 +428,17 @@ app.get('/api/history', authenticate, (req, res) => {
     LEFT JOIN users u ON u.id = h.user_id
     WHERE h.project_id = ? ORDER BY h.created_at DESC, h.id DESC
   `).all(projectId))
+})
+
 // Serve frontend built assets in production if available
 const frontendDist = path.resolve(sourceDirectory, '../../frontend/dist')
 if (fs.existsSync(frontendDist)) {
   app.use(express.static(frontendDist))
-  app.get('*', (req, res, next) => {
-    if (req.path.startsWith('/api')) return next()
-    res.sendFile(path.join(frontendDist, 'index.html'))
+  app.use((req, res, next) => {
+    if (req.method === 'GET' && !req.path.startsWith('/api')) {
+      return res.sendFile(path.join(frontendDist, 'index.html'))
+    }
+    next()
   })
 }
 
