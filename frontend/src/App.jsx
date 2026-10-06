@@ -13,8 +13,8 @@ import PaymentsPage from './pages/PaymentsPage'
 
 import './App.css'
 
-// Backend API URL configured via environment or default to local port 4000
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
+// Backend API URL configured via environment or default to relative in production / local port 4000
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:4000/api')
 
 /**
  * Standard fetch helper that automatically attaches JWT token and parses JSON responses.

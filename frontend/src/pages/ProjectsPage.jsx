@@ -148,7 +148,7 @@ export default function ProjectsPage({
                     <span className="attachment-icon">📎 Deliverable:</span>
                     {project.attachment_url.startsWith('/uploads/') ? (
                       <a
-                        href={`http://localhost:4000/api/projects/${project.id}/attachment`}
+                        href={`${(import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:4000/api')).replace(/\/api\/?$/, '')}/api/projects/${project.id}/attachment`}
                         target="_blank"
                         rel="noreferrer"
                         className="attachment-link"

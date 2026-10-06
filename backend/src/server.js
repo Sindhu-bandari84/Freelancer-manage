@@ -25,7 +25,8 @@ const upload = multer({
     callback(allowed ? null : new Error('Attach a PDF, image, DOCX, XLSX, or ZIP file.'), allowed)
   },
 })
-app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:5173' }))
+const corsOrigin = process.env.CORS_ORIGIN || '*'
+app.use(cors({ origin: corsOrigin === '*' ? true : corsOrigin }))
 app.use(express.json({ limit: '1mb' }))
 
 const asyncRoute = (handler) => (req, res, next) => {
@@ -427,7 +428,15 @@ app.get('/api/history', authenticate, (req, res) => {
     LEFT JOIN users u ON u.id = h.user_id
     WHERE h.project_id = ? ORDER BY h.created_at DESC, h.id DESC
   `).all(projectId))
-})
+// Serve frontend built assets in production if available
+const frontendDist = path.resolve(sourceDirectory, '../../frontend/dist')
+if (fs.existsSync(frontendDist)) {
+  app.use(express.static(frontendDist))
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next()
+    res.sendFile(path.join(frontendDist, 'index.html'))
+  })
+}
 
 app.use((error, _req, res, _next) => {
   if (error.type === 'entity.parse.failed') {
